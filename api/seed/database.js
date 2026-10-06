@@ -7,6 +7,7 @@ class Database {
   constructor(seedData, enableLogging) {
     this.courses = seedData.courses;
     this.users = seedData.users;
+    this.favorites = seedData.favorites || [];
     this.enableLogging = enableLogging;
     this.context = new Context('fsjstd-restapi.db', enableLogging);
   }
@@ -59,6 +60,18 @@ class Database {
       course.materialsNeeded);
   }
 
+  createFavorite(favorite) {
+    return this.context
+      .execute(`
+        INSERT INTO Favorites
+          (userId, courseId, createdAt, updatedAt)
+        VALUES
+          (?, ?, datetime('now'), datetime('now'));
+      `,
+      favorite.userId,
+      favorite.courseId);
+  }
+
   async hashUserPasswords(users) {
     const usersWithHashedPasswords = [];
 
@@ -82,7 +95,20 @@ class Database {
     }
   }
 
+  async createFavorites(favorites) {
+    for (const favorite of favorites) {
+      await this.createFavorite(favorite);
+    }
+  }
+
   async init() {
+    // Favorites reference Users and Courses, so it is dropped first and rebuilt last
+    this.log('Dropping the Favorites table...');
+
+    await this.context.execute(`
+      DROP TABLE IF EXISTS Favorites;
+    `);
+
     const userTableExists = await this.tableExists('Users');
 
     if (userTableExists) {
@@ -141,9 +167,39 @@ class Database {
       );
     `);
 
+    await this.context.execute(`
+      CREATE INDEX courses_title ON Courses (title);
+    `);
+
+    await this.context.execute(`
+      CREATE INDEX courses_user_id ON Courses (userId);
+    `);
+
     this.log('Creating the course records...');
 
     await this.createCourses(this.courses);
+
+    this.log('Creating the Favorites table...');
+
+    await this.context.execute(`
+      CREATE TABLE Favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL
+          REFERENCES Users (id) ON DELETE CASCADE ON UPDATE CASCADE,
+        courseId INTEGER NOT NULL
+          REFERENCES Courses (id) ON DELETE CASCADE ON UPDATE CASCADE,
+        createdAt DATETIME NOT NULL,
+        updatedAt DATETIME NOT NULL
+      );
+    `);
+
+    await this.context.execute(`
+      CREATE UNIQUE INDEX favorites_user_course_unique ON Favorites (userId, courseId);
+    `);
+
+    this.log('Creating the favorite records...');
+
+    await this.createFavorites(this.favorites);
 
     this.log('Database successfully initialized!');
   }

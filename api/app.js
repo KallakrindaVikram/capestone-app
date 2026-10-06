@@ -18,8 +18,8 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-// set up cors 
-app.use(cors());
+// set up cors (X-Total-Count must be exposed so the browser client can read it)
+app.use(cors({ exposedHeaders: ['X-Total-Count', 'Location'] }));
 
 // set up Express to work with JSON
 app.use(express.json());

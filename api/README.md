@@ -54,9 +54,22 @@ Creates a new user. Required fields are:
 - emailAddress
 - password
 
+#### `GET /api/users/me/favorites`
+Returns the authenticated user's favorited courses (`id`, `title`, `userId` and the owner's name), most recently favorited first.
+
 ### Courses
 #### `GET /api/courses`
-Returns all available courses
+Returns courses with optional search, filtering, sorting and pagination. The total number of matching courses is returned in the `X-Total-Count` response header.
+
+| Query param | Description |
+| --- | --- |
+| `q` | Case-insensitive match on title or description (trimmed; blank is ignored). Case-folding is ASCII-only in SQLite. |
+| `userId` | Positive integer; only courses owned by that user |
+| `sort` | `title_asc`, `title_desc` or `created_desc`. Default order is `id` ascending |
+| `page` | Integer >= 1 (default `1`) |
+| `pageSize` | Integer 1-50 (default `10`) |
+
+Invalid params return `400` with `{ "errors": ["Invalid page", ...] }`.
 
 #### `GET /api/courses/:id`
 Returns details of a specific course by course id
@@ -66,10 +79,10 @@ Creates a new course. Required fields are:
 - title
 - description
 
-Only authorised users are permitted to create courses.
+Only authorised users are permitted to create courses. The course owner is always the authenticated user; any `userId` in the request body is ignored.
 
 #### `PUT /api/courses/:id`
-Updates details of a course. Only the currently authenticated User who is the owner of the course is permitted to update the course.
+Updates details of a course. Only the currently authenticated User who is the owner of the course is permitted to update the course (`403` otherwise). A `userId` in the request body is ignored; ownership cannot be changed.
 
 #### `DELETE /api/courses/:id`
 Deletes a course by course id. Only the currently authenticated User who is the owner of the course is permitted to delete the course. 

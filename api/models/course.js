@@ -38,7 +38,15 @@ module.exports = (sequelize) => {
     materialsNeeded: {
       type: DataTypes.STRING
     }
-  }, { sequelize });
+  }, {
+    sequelize,
+    // Standard b-tree indexes; SQLite LIKE '%q%' cannot use them for contains-matching, but they help
+    // prefix matches, the userId filter and ownership lookups.
+    indexes: [
+      { name: 'courses_title', fields: ['title'] },
+      { name: 'courses_user_id', fields: ['userId'] }
+    ]
+  });
 
   Course.associate = (models) => {
     Course.belongsTo(models.User, {

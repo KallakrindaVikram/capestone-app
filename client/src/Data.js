@@ -84,6 +84,70 @@ export default class Data {
   }
 
   /**
+   * List courses with optional search, sort and pagination
+   * @param {Object} params - any of q, sort, page, pageSize, userId; empty values are omitted
+   * @returns {Object} { data: courses for the requested page, totalCount: number of matching courses }
+   */
+  async listCourses(params = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        query.set(key, value);
+      }
+    });
+    const queryString = query.toString();
+    const response = await this.api(`/courses${queryString ? `?${queryString}` : ''}`, 'GET', null, false);
+    if (response.status === 200) {
+      const data = await response.json();
+      const totalCount = parseInt(response.headers.get('X-Total-Count'), 10);
+      return { data, totalCount: Number.isNaN(totalCount) ? data.length : totalCount };
+    } else {
+      throw new Error();
+    }
+  }
+
+  /**
+   * Get the authenticated user's favorited courses
+   * @param {String} username - user's email address
+   * @param {String} password
+   * @returns {Array} favorited courses
+   */
+  async getMyFavorites(username, password) {
+    const response = await this.api('/users/me/favorites', 'GET', null, true, { username, password });
+    if (response.status === 200) {
+      return response.json();
+    } else {
+      throw Object.assign(new Error(), { status: response.status });
+    }
+  }
+
+  /**
+   * Add a course to the authenticated user's favorites (idempotent)
+   * @param {String} courseId
+   * @param {String} username - user's email address
+   * @param {String} password
+   */
+  async favoriteCourse(courseId, username, password) {
+    const response = await this.api(`/courses/${courseId}/favorite`, 'POST', null, true, { username, password });
+    if (response.status !== 204) {
+      throw Object.assign(new Error(), { status: response.status });
+    }
+  }
+
+  /**
+   * Remove a course from the authenticated user's favorites (idempotent)
+   * @param {String} courseId
+   * @param {String} username - user's email address
+   * @param {String} password
+   */
+  async unfavoriteCourse(courseId, username, password) {
+    const response = await this.api(`/courses/${courseId}/favorite`, 'DELETE', null, true, { username, password });
+    if (response.status !== 204) {
+      throw Object.assign(new Error(), { status: response.status });
+    }
+  }
+
+  /**
    * Get a specific course by id
    * @param {String} id - Course ID
    * @returns API response if successful

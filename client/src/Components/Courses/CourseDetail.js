@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import Context from '../../Context';
 import Loading from '../Loading';
@@ -9,10 +9,14 @@ const CourseDetail = () => {
   let courseDetail = useState('');
   const [course, setCourseDetail] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const authUser = context.authenticatedUser;
+  const isOwner = Boolean(authUser && course.User && authUser.id === course.User.id);
 
   const { id } = useParams();
   let navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Fetch a course from the database
@@ -36,6 +40,21 @@ const CourseDetail = () => {
     // Clean up to prevent memory leak
     return () => controller?.abort();
   }, [id, navigate, context.data]);
+
+  // Work out whether the signed-in user has already favorited this course
+  const authEmail = authUser ? authUser.emailAddress : null;
+  const authPassword = authUser ? authUser.password : null;
+  useEffect(() => {
+    setIsFavorited(false);
+    if (!authEmail) return undefined;
+    let cancelled = false;
+    context.data.getMyFavorites(authEmail, authPassword)
+      .then((favorites) => {
+        if (!cancelled) setIsFavorited(favorites.some((favorite) => String(favorite.id) === String(id)));
+      })
+      .catch((error) => console.error('Error fetching favorites', error));
+    return () => { cancelled = true; };
+  }, [id, authEmail, authPassword, context.data]);
 
   if (course.id) {
     courseDetail = <div className="wrap">
@@ -80,20 +99,51 @@ const CourseDetail = () => {
       });
   }
 
+  const handleToggleFavorite = async (event) => {
+    event.preventDefault();
+    if (!authUser) {
+      navigate('/signin', { state: { from: location.pathname } });
+      return;
+    }
+    setIsTogglingFavorite(true);
+    try {
+      if (isFavorited) {
+        await context.data.unfavoriteCourse(id, authUser.emailAddress, authUser.password);
+      } else {
+        await context.data.favoriteCourse(id, authUser.emailAddress, authUser.password);
+      }
+      setIsFavorited(!isFavorited);
+    } catch (error) {
+      console.error(error);
+      if (error.status === 401) {
+        navigate('/signin', { state: { from: location.pathname } });
+      } else if (error.status === 404) {
+        navigate('/notfound');
+      } else {
+        navigate('/error');
+      }
+    } finally {
+      setIsTogglingFavorite(false);
+    }
+  }
+
   return (
     isLoading ?
       <Loading />
       : course ? <div>
         <div className="actions--bar">
           <div className="wrap">
-            {authUser && (authUser.id === course.User.id) ?
+            {isOwner ?
               <Link to={`/courses/${id}/update`} className="button">Update Course</Link>
               : null
             }
-            {authUser && (authUser.id === course.User.id) ?
+            {isOwner ?
               <button className="button" onClick={handleDelete}>Delete Course</button>
               : null
             }
+            <button className="button" onClick={handleToggleFavorite} disabled={isTogglingFavorite}>
+              {isFavorited ? 'Unfavorite' : 'Favorite'}
+            </button>
             <Link to='/' className="button button-secondary">Return to List</Link>
           </div>
         </div>

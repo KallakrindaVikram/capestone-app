@@ -1,7 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
-const User = require('../models').User;
+const { User, Course, Favorite } = require('../models');
 const { authenticateUser } = require('../middleware/auth-user');
 const { asyncHandler } = require('../middleware/async-handler');
 
@@ -19,6 +19,25 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   });
 
   res.json(userResult);
+}));
+
+// Return the authenticated user's favorited courses, most recently favorited first
+router.get('/users/me/favorites', authenticateUser, asyncHandler(async (req, res) => {
+  const favorites = await Favorite.findAll({
+    where: { userId: req.currentUser.id },
+    include: {
+      model: Course,
+      attributes: ['id', 'title', 'userId'],
+      required: true,
+      include: {
+        model: User,
+        attributes: ['id', 'firstName', 'lastName']
+      }
+    },
+    order: [['createdAt', 'DESC'], ['id', 'DESC']]
+  });
+
+  res.json(favorites.map((favorite) => favorite.Course));
 }));
 
 // Create a user

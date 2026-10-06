@@ -223,6 +223,70 @@ input:focus, button:focus, .button:focus, textarea:focus, a:focus {
     text-align: center;
 }
 
+.course--author {
+    color: #ddd9e4;
+    font-size: .8rem;
+    font-weight: 300;
+    margin: .5rem 0 0;
+}
+.catalog--toolbar {
+    margin-bottom: 1.5rem;
+}
+.catalog--search {
+    margin-bottom: 1rem;
+}
+.catalog--search .button {
+    margin-top: .25rem;
+    width: 120px;
+}
+.catalog--controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem 1rem;
+}
+.catalog--controls label {
+    display: inline-block;
+    margin: 0;
+}
+select {
+    color: #332a40;
+    border-radius: .5rem;
+    border: 1px solid #8c789b;
+    padding: .5rem;
+    font-family: 'Work Sans', sans-serif;
+    font-size: .8rem;
+    background: #fff;
+}
+.catalog--summary,
+.catalog--empty {
+    font-weight: 300;
+    margin-bottom: 1rem;
+}
+.catalog--pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0 2rem;
+}
+.catalog--pagination .button {
+    width: 110px;
+    margin: 0;
+    padding: .5rem 1rem;
+}
+.button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+.favorites--list {
+    list-style: none;
+    margin: 0 0 2rem;
+}
+.favorites--list li {
+    margin-bottom: 1rem;
+}
+
 @media screen and (min-width: 600px) {
     .header--signedin li {
         display: inline-block;

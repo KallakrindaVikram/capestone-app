@@ -40,5 +40,10 @@
       "estimatedTime": "4 hours",
       "materialsNeeded": "* Notebook computer running Mac OS X or Windows\n* Text editor"
     }
+  ],
+  "favorites": [
+    { "userId": 1, "courseId": 2 },
+    { "userId": 2, "courseId": 1 },
+    { "userId": 2, "courseId": 4 }
   ]
 }

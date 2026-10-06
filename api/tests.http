@@ -151,3 +151,57 @@ Content-Type: application/json
 
 ### Delete Course (No Auth)
 DELETE http://localhost:5000/api/courses/1 HTTP/1.1
+
+
+# Tests for catalog search / sort / pagination (responses carry an X-Total-Count header)
+
+### Search courses (case-insensitive, title or description)
+GET http://localhost:5000/api/courses?q=LEARN HTTP/1.1
+
+### Filter by owner
+GET http://localhost:5000/api/courses?userId=2 HTTP/1.1
+
+### Sort (title_asc | title_desc | created_desc) and paginate
+GET http://localhost:5000/api/courses?sort=title_asc&page=2&pageSize=2 HTTP/1.1
+
+### Invalid query params -> 400 { errors: [...] }
+GET http://localhost:5000/api/courses?page=0&pageSize=51&userId=abc&sort=bogus HTTP/1.1
+
+
+# Tests for ownership enforcement
+
+### Create Course (spoofed userId is ignored; owner is the authenticated user)
+POST http://localhost:5000/api/courses HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+Content-Type: application/json
+
+{
+  "title": "Spoofed owner",
+  "description": "userId below must be ignored",
+  "userId": 2
+}
+
+
+# Tests for favorites
+
+### Get my favorites (With Auth)
+GET http://localhost:5000/api/users/me/favorites HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+
+### Get my favorites (No Auth) -> 401
+GET http://localhost:5000/api/users/me/favorites HTTP/1.1
+
+### Favorite a course (idempotent, 204)
+POST http://localhost:5000/api/courses/3/favorite HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+
+### Unfavorite a course (idempotent, 204)
+DELETE http://localhost:5000/api/courses/3/favorite HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+
+### Favorite a course that does not exist -> 404
+POST http://localhost:5000/api/courses/9999/favorite HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+
+### Favorite (No Auth) -> 401
+POST http://localhost:5000/api/courses/3/favorite HTTP/1.1
