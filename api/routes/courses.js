@@ -190,8 +190,7 @@ router.delete("/courses/:id", authenticateUser, asyncHandler(async (req, res, ne
       res.status(403).json({ error: 'Forbidden: You do not own this course.' });
     }
   } else {
-    const err = new Error(`Course Not Found`);
-    res.status(404).json({ error: err.message });
+    res.status(404).json({ error: 'Course not found' });
   }
 }));
 

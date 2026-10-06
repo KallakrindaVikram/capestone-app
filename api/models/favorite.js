@@ -18,6 +18,7 @@ module.exports = (sequelize) => {
     }
   }, {
     sequelize,
+    timestamps: true,
     indexes: [
       { name: 'favorites_user_course_unique', unique: true, fields: ['userId', 'courseId'] }
     ]

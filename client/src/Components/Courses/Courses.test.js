@@ -79,6 +79,14 @@ test('a page past the end is replaced with the last page', async () => {
   expect(listCourses).toHaveBeenLastCalledWith({ q: '', sort: '', page: 3, pageSize: 10 });
 });
 
+test('a 400 validation response is shown inline instead of routing to the error page', async () => {
+  const error = Object.assign(new Error('Invalid course query'), { status: 400, errors: ['Invalid page'] });
+  renderCourses(jest.fn().mockRejectedValue(error));
+
+  expect(await screen.findByText('Invalid page')).toBeInTheDocument();
+  expect(screen.queryByText('error page')).not.toBeInTheDocument();
+});
+
 test('a failed request navigates to the error page', async () => {
   renderCourses(jest.fn().mockRejectedValue(new Error('boom')));
   expect(await screen.findByText('error page')).toBeInTheDocument();

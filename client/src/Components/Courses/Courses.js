@@ -34,6 +34,7 @@ const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [errors, setErrors] = useState([]);
 
   const navigate = useNavigate();
 
@@ -55,6 +56,7 @@ const Courses = () => {
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
+    setErrors([]);
     context.data.listCourses({ q, sort, page, pageSize })
       .then(({ data, totalCount }) => {
         if (cancelled) return;
@@ -73,6 +75,14 @@ const Courses = () => {
       })
       .catch((error) => {
         if (cancelled) return;
+        if (error.status === 400) {
+          // Rejected query params: show the API's messages inline instead of the generic error page
+          setCourses([]);
+          setTotalCount(0);
+          setErrors(error.errors && error.errors.length ? error.errors : ['Invalid search options.']);
+          setIsLoading(false);
+          return;
+        }
         console.error('Error fetching and parsing data', error);
         navigate('/error');
       });
@@ -134,7 +144,16 @@ const Courses = () => {
       {isLoading ?
         <Loading />
         : <>
-          {courses.length ?
+          {errors.length ?
+            <div className="validation--errors">
+              <h3>Unable to load courses</h3>
+              <ul>
+                {errors.map((message, i) => <li key={i}>{message}</li>)}
+              </ul>
+            </div>
+            : null
+          }
+          {errors.length ? null : courses.length ?
             <p className="catalog--summary">Showing {firstShown}-{lastShown} of {totalCount}</p>
             : <p className="catalog--empty">
               {q ? 'No courses match your search. Try a different keyword.' : 'No courses are available yet.'}

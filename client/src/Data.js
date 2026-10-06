@@ -101,8 +101,11 @@ export default class Data {
       const data = await response.json();
       const totalCount = parseInt(response.headers.get('X-Total-Count'), 10);
       return { data, totalCount: Number.isNaN(totalCount) ? data.length : totalCount };
+    } else if (response.status === 400) {
+      const body = await response.json().catch(() => ({}));
+      throw Object.assign(new Error('Invalid course query'), { status: 400, errors: body.errors || [] });
     } else {
-      throw new Error();
+      throw Object.assign(new Error(), { status: response.status });
     }
   }
 
