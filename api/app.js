@@ -57,20 +57,25 @@ app.use((err, req, res, next) => {
 // set our port
 app.set('port', process.env.PORT || 5000);
 
-// Test the database connection
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
-  } catch (error) {
-    console.error('Unable to connect to the database: ', error);
-  }
-})();
+// Start the server only when run directly (so tests can import the app without listening)
+if (require.main === module) {
+  // Test the database connection
+  (async () => {
+    try {
+      await sequelize.authenticate();
+      console.log('Connection has been established successfully.');
+    } catch (error) {
+      console.error('Unable to connect to the database: ', error);
+    }
+  })();
 
-// start listening on our port
-sequelize.sync()
-  .then(() => {
-    const server = app.listen(app.get('port'), () => {
-      console.log(`Express server is listening on port ${server.address().port}`);
+  // start listening on our port
+  sequelize.sync()
+    .then(() => {
+      const server = app.listen(app.get('port'), () => {
+        console.log(`Express server is listening on port ${server.address().port}`);
+      });
     });
-  });
+}
+
+module.exports = app;
