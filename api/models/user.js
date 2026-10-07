@@ -79,6 +79,10 @@ module.exports = (sequelize) => {
         fieldName: 'userId'
       }
     });
+    User.hasMany(models.Favorite, {
+      foreignKey: { fieldName: 'userId', allowNull: false },
+      onDelete: 'CASCADE'
+    });
   }
 
   return User;

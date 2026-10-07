@@ -11,6 +11,18 @@
       "lastName": "Jones",
       "emailAddress": "sally@jones.com",
       "password": "sallypassword"
+    },
+    {
+      "firstName": "Alex",
+      "lastName": "Rivera",
+      "emailAddress": "alex@rivera.com",
+      "password": "alexpassword"
+    },
+    {
+      "firstName": "Priya",
+      "lastName": "Patel",
+      "emailAddress": "priya@patel.com",
+      "password": "priyapassword"
     }
   ],
   "courses": [
@@ -39,6 +51,247 @@
       "description": "An introduction to testing and debugging your code.",
       "estimatedTime": "4 hours",
       "materialsNeeded": "* Notebook computer running Mac OS X or Windows\n* Text editor"
+    },
+    {
+      "userId": 3,
+      "title": "React Fundamentals",
+      "description": "Build interactive user interfaces with React components, props and state.",
+      "estimatedTime": "10 hours",
+      "materialsNeeded": "* Node.js\n* Code editor"
+    },
+    {
+      "userId": 3,
+      "title": "React Hooks in Depth",
+      "description": "Master useState, useEffect, useContext and custom hooks to share logic between components.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* Node.js\n* Code editor"
+    },
+    {
+      "userId": 3,
+      "title": "Testing React Apps with Jest",
+      "description": "Write reliable component tests using Jest and React Testing Library.",
+      "estimatedTime": "5 hours",
+      "materialsNeeded": "* Node.js\n* Code editor"
+    },
+    {
+      "userId": 3,
+      "title": "Advanced CSS Layouts",
+      "description": "Create responsive pages with Flexbox and CSS Grid.",
+      "estimatedTime": "7 hours",
+      "materialsNeeded": "* Web browser\n* Code editor"
+    },
+    {
+      "userId": 3,
+      "title": "JavaScript Basics",
+      "description": "Variables, functions, loops and the DOM: everything you need to start coding in JavaScript.",
+      "estimatedTime": "8 hours",
+      "materialsNeeded": "* Web browser\n* Code editor"
+    },
+    {
+      "userId": 3,
+      "title": "Modern JavaScript (ES6+)",
+      "description": "Arrow functions, destructuring, modules, promises and async/await explained.",
+      "estimatedTime": "6 hours"
+    },
+    {
+      "userId": 3,
+      "title": "Introduction to TypeScript",
+      "description": "Add static types to your JavaScript projects and catch bugs before runtime.",
+      "estimatedTime": "5 hours",
+      "materialsNeeded": "* Node.js\n* Code editor"
+    },
+    {
+      "userId": 3,
+      "title": "Responsive Web Design",
+      "description": "Mobile-first design techniques, media queries and fluid typography.",
+      "estimatedTime": "4 hours"
+    },
+    {
+      "userId": 4,
+      "title": "Node.js and Express Essentials",
+      "description": "Create a REST API with Node.js and Express, including routing and middleware.",
+      "estimatedTime": "9 hours",
+      "materialsNeeded": "* Node.js\n* Postman"
+    },
+    {
+      "userId": 4,
+      "title": "REST API Design Best Practices",
+      "description": "Design clean, predictable APIs: resources, status codes, pagination and versioning.",
+      "estimatedTime": "4 hours"
+    },
+    {
+      "userId": 4,
+      "title": "SQL for Beginners",
+      "description": "Query relational databases with SELECT, JOIN, GROUP BY and subqueries.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* SQLite\n* DB browser"
+    },
+    {
+      "userId": 4,
+      "title": "Database Design with SQLite",
+      "description": "Model tables, relationships and indexes for small to medium applications.",
+      "estimatedTime": "5 hours",
+      "materialsNeeded": "* SQLite"
+    },
+    {
+      "userId": 4,
+      "title": "Sequelize ORM Workshop",
+      "description": "Define models, associations, migrations and seeders with Sequelize.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* Node.js\n* SQLite"
+    },
+    {
+      "userId": 4,
+      "title": "Authentication with Express",
+      "description": "Basic auth, password hashing with bcrypt and protecting API routes.",
+      "estimatedTime": "3 hours",
+      "materialsNeeded": "* Node.js"
+    },
+    {
+      "userId": 4,
+      "title": "Docker for Developers",
+      "description": "Containerise your applications and run them consistently anywhere.",
+      "estimatedTime": "5 hours",
+      "materialsNeeded": "* Docker Desktop"
+    },
+    {
+      "userId": 4,
+      "title": "Python for Data Analysis",
+      "description": "Explore datasets with Python, pandas and simple visualisations.",
+      "estimatedTime": "12 hours",
+      "materialsNeeded": "* Python 3\n* Jupyter"
+    },
+    {
+      "userId": 1,
+      "title": "Git and GitHub Workflow",
+      "description": "Branching, pull requests and resolving merge conflicts in a team setting.",
+      "estimatedTime": "3 hours",
+      "materialsNeeded": "* Git"
+    },
+    {
+      "userId": 1,
+      "title": "Woodworking Joinery Basics",
+      "description": "Learn dovetail, mortise and tenon, and butt joints with hand tools.",
+      "estimatedTime": "8 hours",
+      "materialsNeeded": "* Chisels\n* Hand saw\n* Wood glue"
+    },
+    {
+      "userId": 1,
+      "title": "Finishing and Staining Wood",
+      "description": "Choose and apply stains, oils and varnishes for a professional look.",
+      "estimatedTime": "4 hours",
+      "materialsNeeded": "* Stain\n* Brushes\n* Sandpaper"
+    },
+    {
+      "userId": 1,
+      "title": "Build a Workbench",
+      "description": "A sturdy workbench you can build over a weekend with common lumber.",
+      "estimatedTime": "16 hours",
+      "materialsNeeded": "* 2 x 4 lumber\n* Wood screws"
+    },
+    {
+      "userId": 2,
+      "title": "Agile Project Management",
+      "description": "Scrum, Kanban and sprint planning for software teams.",
+      "estimatedTime": "4 hours"
+    },
+    {
+      "userId": 2,
+      "title": "Accessibility Fundamentals",
+      "description": "Build web pages that everyone can use: semantic HTML, ARIA and keyboard support.",
+      "estimatedTime": "5 hours"
+    },
+    {
+      "userId": 2,
+      "title": "UX Design Principles",
+      "description": "User research, wireframing and usability testing for web applications.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* Notebook\n* Figma account"
+    },
+    {
+      "userId": 2,
+      "title": "Web Performance Optimization",
+      "description": "Measure and improve page load times, bundle size and rendering performance.",
+      "estimatedTime": "4 hours"
+    },
+    {
+      "userId": 2,
+      "title": "Continuous Integration Basics",
+      "description": "Automate builds and tests with a CI pipeline.",
+      "estimatedTime": "3 hours",
+      "materialsNeeded": "* GitHub account"
+    },
+    {
+      "userId": 2,
+      "title": "Clean Code Practices",
+      "description": "Naming, small functions and refactoring techniques to keep code readable.",
+      "estimatedTime": "5 hours"
+    }
+  ],
+  "favorites": [
+    {
+      "userId": 3,
+      "courseId": 1
+    },
+    {
+      "userId": 3,
+      "courseId": 2
+    },
+    {
+      "userId": 3,
+      "courseId": 3
+    },
+    {
+      "userId": 3,
+      "courseId": 27
+    },
+    {
+      "userId": 3,
+      "courseId": 14
+    },
+    {
+      "userId": 3,
+      "courseId": 17
+    },
+    {
+      "userId": 3,
+      "courseId": 21
+    },
+    {
+      "userId": 1,
+      "courseId": 2
+    },
+    {
+      "userId": 1,
+      "courseId": 5
+    },
+    {
+      "userId": 1,
+      "courseId": 12
+    },
+    {
+      "userId": 2,
+      "courseId": 1
+    },
+    {
+      "userId": 2,
+      "courseId": 9
+    },
+    {
+      "userId": 2,
+      "courseId": 21
+    },
+    {
+      "userId": 4,
+      "courseId": 5
+    },
+    {
+      "userId": 4,
+      "courseId": 6
+    },
+    {
+      "userId": 4,
+      "courseId": 18
     }
   ]
 }
