@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon ./app.js",
-    "seed": "cross-env DB_ENABLE_LOGGING=true node './seed'"
+    "seed": "cross-env DB_ENABLE_LOGGING=true node './seed'",
+    "migrate": "sequelize-cli db:migrate",
+    "test": "node --test \"tests/**/*.test.js\""
   },
   "keywords": [],
   "author": "",
