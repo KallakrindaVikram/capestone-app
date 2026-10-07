@@ -71,13 +71,28 @@ export default class Data {
   }
 
   /**
-   * Get all available courses
+   * Get available courses, optionally searched, filtered by author and sorted
+   * @param {Object} params - optional { q, userId, sort, order }; empty values are omitted
    * @returns API response if successful
+   * @throws Error with `status` and, for a 400 response, `errors` (array of messages)
    */
-  async getCourses() {
-    const response = await this.api('/courses', 'GET', null, false);
+  async getCourses(params = {}) {
+    const query = new URLSearchParams();
+    ['q', 'userId', 'sort', 'order'].forEach((key) => {
+      if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+        query.set(key, params[key]);
+      }
+    });
+    const queryString = query.toString();
+    const response = await this.api(`/courses${queryString ? `?${queryString}` : ''}`, 'GET', null, false);
     if (response.status === 200) {
       return response.json().then(data => data);
+    } else if (response.status === 400) {
+      const body = await response.json().catch(() => ({}));
+      const error = new Error('Invalid course query');
+      error.status = 400;
+      error.errors = body.errors || [];
+      throw error;
     } else {
       throw new Error();
     }

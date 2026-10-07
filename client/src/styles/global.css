@@ -223,6 +223,59 @@ input:focus, button:focus, .button:focus, textarea:focus, a:focus {
     text-align: center;
 }
 
+.catalog--controls {
+    margin-bottom: 2rem;
+}
+.catalog--controls form {
+    margin-bottom: 1rem;
+}
+.catalog--search--row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: .5rem;
+}
+.catalog--search--row input {
+    flex: 1 1 250px;
+    width: auto;
+    margin-bottom: 0;
+}
+.catalog--search--row .button {
+    width: auto;
+    margin: 0;
+}
+.catalog--filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+.catalog--filters select {
+    display: block;
+    min-width: 200px;
+    color: #332a40;
+    border-radius: .5rem;
+    border: 1px solid #8c789b;
+    padding: .5rem;
+    background: #fff;
+    font-family: 'Work Sans', sans-serif;
+    font-size: .8rem;
+}
+select:focus {
+    outline: 3px solid #332a40;
+}
+.catalog--empty {
+    background: #e9e5f0;
+    border-radius: .5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: #47395e;
+}
+.course--updated {
+    color: #e9e5f0;
+    font-size: .75rem;
+    margin: .5rem 0 0;
+}
+
 @media screen and (min-width: 600px) {
     .header--signedin li {
         display: inline-block;
