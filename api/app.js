@@ -3,11 +3,10 @@
 // load modules
 const express = require('express');
 const morgan = require('morgan');
-const { sequelize } = require('./models');
+const { sequelize, Sequelize } = require('./models');
 const cors = require('cors');
-
-// variable to enable global error logging
-const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
+const { notFoundHandler, errorHandler } = require('./middleware/errors');
+const addArchivedAndIndexes = require('./migrations/20261007000000-add-archived-and-indexes-to-courses');
 
 const userRouter = require('./routes/users');
 const courseRouter = require('./routes/courses');
@@ -16,7 +15,9 @@ const courseRouter = require('./routes/courses');
 const app = express();
 
 // setup morgan which gives us http request logging
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(morgan('dev'));
+}
 
 // set up cors 
 app.use(cors());
@@ -36,41 +37,34 @@ app.use('/api', userRouter);
 app.use('/api', courseRouter);
 
 // send 404 if no other route matched
-app.use((req, res) => {
-  res.status(404).json({
-    message: 'Route Not Found',
-  });
-});
+app.use(notFoundHandler);
 
 // setup a global error handler
-app.use((err, req, res, next) => {
-  if (enableGlobalErrorLogging) {
-    console.error(`Global error handler: ${JSON.stringify(err.stack)}`);
-  }
-
-  res.status(err.status || 500).json({
-    message: err.message,
-    error: {},
-  });
-});
+app.use(errorHandler);
 
 // set our port
 app.set('port', process.env.PORT || 5000);
 
-// Test the database connection
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
-  } catch (error) {
-    console.error('Unable to connect to the database: ', error);
-  }
-})();
+// Bring the schema up to date (sync() does not alter existing tables)
+const prepareDatabase = async () => {
+  await sequelize.authenticate();
+  console.log('Connection has been established successfully.');
+  await sequelize.sync();
+  await addArchivedAndIndexes.up(sequelize.getQueryInterface(), Sequelize);
+};
 
 // start listening on our port
-sequelize.sync()
-  .then(() => {
-    const server = app.listen(app.get('port'), () => {
-      console.log(`Express server is listening on port ${server.address().port}`);
+if (require.main === module) {
+  prepareDatabase()
+    .then(() => {
+      const server = app.listen(app.get('port'), () => {
+        console.log(`Express server is listening on port ${server.address().port}`);
+      });
+    })
+    .catch((error) => {
+      console.error('Unable to start the application: ', error);
+      process.exit(1);
     });
-  });
+}
+
+module.exports = app;

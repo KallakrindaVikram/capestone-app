@@ -23,19 +23,10 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 
 // Create a user
 router.post('/users', asyncHandler(async (req, res) => {
-  try {
-    await User.create(req.body);
-    res.status(201)
-      .location('/')
-      .end();
-  } catch (error) {
-    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
-      const errors = error.errors.map(err => err.message);
-      res.status(400).json({ errors: errors });
-    } else {
-      res.status(400).json({ error: error.message });
-    }
-  }
+  await User.create(req.body);
+  res.status(201)
+    .location('/')
+    .end();
 }));
 
 module.exports = router;
