@@ -43,7 +43,7 @@ export default class Data {
       return response.json().then(data => data);
     }
     else if (response.status === 401) {
-      return response.json().then(message => message);
+      return response.json().then(data => data);
     }
     else {
       throw new Error();
@@ -71,29 +71,48 @@ export default class Data {
   }
 
   /**
-   * Get all available courses
-   * @returns API response if successful
+   * Get a page of courses
+   * @param {Object} options
+   * @param {Number} options.page - 1-based page number
+   * @param {Number} options.limit - courses per page
+   * @param {String} options.q - keyword to search title and description
+   * @param {String} options.sort - id, title, createdAt, optionally prefixed with "-" for descending
+   * @param {Boolean} options.includeArchived - include the signed-in user's archived courses (requires credentials)
+   * @param {Object} credentials - optional { username, password }
+   * @returns {Object} { courses, pagination: { page, limit, total, totalPages } }
    */
-  async getCourses() {
-    const response = await this.api('/courses', 'GET', null, false);
+  async getCourses({ page, limit, q, sort, includeArchived } = {}, credentials = null) {
+    const params = new URLSearchParams();
+    if (page) params.set('page', page);
+    if (limit) params.set('limit', limit);
+    if (q) params.set('q', q);
+    if (sort) params.set('sort', sort);
+    if (includeArchived) params.set('includeArchived', 'true');
+    const queryString = params.toString();
+
+    const path = `/courses${queryString ? `?${queryString}` : ''}`;
+    const response = await this.api(path, 'GET', null, !!credentials, credentials);
     if (response.status === 200) {
-      return response.json().then(data => data);
+      return response.json();
     } else {
-      throw new Error();
+      throw new Error(`Unable to load courses (${response.status})`);
     }
   }
 
   /**
    * Get a specific course by id
    * @param {String} id - Course ID
-   * @returns API response if successful
+   * @param {Object} credentials - optional { username, password }; needed to view your own archived course
+   * @returns the course, or null if it does not exist (or is archived and not yours)
    */
-  async getCourse(id) {
-    const response = await this.api(`/courses/${id}`, 'GET', null, false);
+  async getCourse(id, credentials = null) {
+    const response = await this.api(`/courses/${id}`, 'GET', null, !!credentials, credentials);
     if (response.status === 200) {
-      return response.json().then(data => data);
+      return response.json();
+    } else if (response.status === 404) {
+      return null;
     } else {
-      throw new Error();
+      throw new Error(`Unable to load course (${response.status})`);
     }
   }
 
@@ -162,6 +181,41 @@ export default class Data {
     }
     else {
       throw new Error();
+    }
+  }
+
+  /**
+   * Archive a course (soft delete). Only the course author is authorised.
+   * @param {String} id - Course ID
+   * @param {String} username - user's email address
+   * @param {String} password
+   * @returns empty array if successful, otherwise an array containing the error message
+   */
+  archiveCourse(id, username, password) {
+    return this.setArchived(id, 'archive', username, password);
+  }
+
+  /**
+   * Restore an archived course. Only the course author is authorised.
+   * @param {String} id - Course ID
+   * @param {String} username - user's email address
+   * @param {String} password
+   * @returns empty array if successful, otherwise an array containing the error message
+   */
+  unarchiveCourse(id, username, password) {
+    return this.setArchived(id, 'unarchive', username, password);
+  }
+
+  async setArchived(id, action, username, password) {
+    const response = await this.api(`/courses/${id}/${action}`, 'POST', null, true, { username, password });
+    if (response.status === 204) {
+      return [];
+    }
+    else if (response.status === 403 || response.status === 404) {
+      return response.json().then(data => [data.error]);
+    }
+    else {
+      throw new Error(`Unable to ${action} course (${response.status})`);
     }
   }
 }

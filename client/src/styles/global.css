@@ -258,3 +258,106 @@ input:focus, button:focus, .button:focus, textarea:focus, a:focus {
         display: inline-block;
     }
 }
+/* Catalog search, sort, pagination and archiving */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+.catalog--toolbar {
+    margin-bottom: 1.5rem;
+}
+.catalog--search {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1rem;
+}
+.catalog--search input {
+    flex: 1;
+    margin-bottom: 0;
+}
+.catalog--search .button {
+    margin: 0;
+    width: auto;
+    padding: .5rem 1.5rem;
+}
+.catalog--controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+}
+.catalog--controls label {
+    margin-bottom: 0;
+}
+select {
+    color: #332a40;
+    border-radius: .5rem;
+    border: 1px solid #8c789b;
+    padding: .4rem;
+    font-family: 'Work Sans', sans-serif;
+    font-size: .8rem;
+}
+.catalog--checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-left: auto;
+}
+.catalog--checkbox input {
+    display: inline-block;
+    width: auto;
+    margin: 0;
+}
+.catalog--summary {
+    color: #555;
+    font-size: .8rem;
+    margin-bottom: 1rem;
+}
+.catalog--empty {
+    text-align: center;
+    padding: 2rem 0;
+}
+.catalog--empty .main--grid {
+    margin-top: 2rem;
+    text-align: left;
+}
+.catalog--pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: .5rem 0 2rem;
+}
+.catalog--pagination .button {
+    margin: 0;
+    width: auto;
+}
+.catalog--pagination .button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+.course--badge {
+    display: inline-block;
+    background: #e9e5f0;
+    color: #47395e;
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: .1rem .5rem;
+    border-radius: 1rem;
+    margin-left: .5rem;
+    vertical-align: middle;
+}
+.course--archived-notice {
+    background: #f6f3fa;
+    border-radius: .5rem;
+    padding: .75rem 1rem;
+}

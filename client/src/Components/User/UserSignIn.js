@@ -34,7 +34,7 @@ const UserSignIn = () => {
         if (response !== null && response.id) {
           navigate(from);
         } else {
-          setErrors(response.message);
+          setErrors(response.error);
         }
       })
       .catch((error) => {

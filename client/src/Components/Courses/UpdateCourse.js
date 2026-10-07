@@ -20,9 +20,9 @@ const UpdateCourse = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    context.data.getCourse(id)
+    context.data.getCourse(id, { username: authUser.emailAddress, password: authUser.password })
       .then((response) => {
-        if (response.error === "Sorry, we couldn't find the course you were looking for.") {
+        if (response === null) {
           navigate('/notfound');
         } else {
           // If the currently authenticated user is the same as the Course author
@@ -48,7 +48,7 @@ const UpdateCourse = () => {
       });
     // Clean up to prevent memory leak
     return () => controller?.abort();
-  }, [authUser.id, id, navigate, context.data]);
+  }, [authUser.id, authUser.emailAddress, authUser.password, id, navigate, context.data]);
 
   const onChange = (event) => {
     const name = event.target.name;
