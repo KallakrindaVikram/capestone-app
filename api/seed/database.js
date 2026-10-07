@@ -7,6 +7,7 @@ class Database {
   constructor(seedData, enableLogging) {
     this.courses = seedData.courses;
     this.users = seedData.users;
+    this.favorites = seedData.favorites || [];
     this.enableLogging = enableLogging;
     this.context = new Context('fsjstd-restapi.db', enableLogging);
   }
@@ -44,19 +45,34 @@ class Database {
       user.password);
   }
 
-  createCourse(course) {
+  // daysAgo staggers createdAt so that "newest" sorting has distinct values
+  createCourse(course, daysAgo = 0) {
     return this.context
       .execute(`
         INSERT INTO Courses
           (userId, title, description, estimatedTime, materialsNeeded, createdAt, updatedAt)
         VALUES
-          (?, ?, ?, ?, ?, datetime('now'), datetime('now'));
+          (?, ?, ?, ?, ?, datetime('now', ?), datetime('now', ?));
       `,
       course.userId,
       course.title,
       course.description,
       course.estimatedTime,
-      course.materialsNeeded);
+      course.materialsNeeded,
+      `-${daysAgo} days`,
+      `-${daysAgo} days`);
+  }
+
+  createFavorite(favorite) {
+    return this.context
+      .execute(`
+        INSERT INTO Favorites
+          (userId, courseId, createdAt, updatedAt)
+        VALUES
+          (?, ?, datetime('now'), datetime('now'));
+      `,
+      favorite.userId,
+      favorite.courseId);
   }
 
   async hashUserPasswords(users) {
@@ -77,12 +93,24 @@ class Database {
   }
 
   async createCourses(courses) {
-    for (const course of courses) {
-      await this.createCourse(course);
+    // Courses are listed oldest first, so the last one is the newest
+    for (const [index, course] of courses.entries()) {
+      await this.createCourse(course, courses.length - index);
+    }
+  }
+
+  async createFavorites(favorites) {
+    for (const favorite of favorites) {
+      await this.createFavorite(favorite);
     }
   }
 
   async init() {
+    // Favorites reference Users and Courses, so it is dropped first
+    await this.context.execute(`
+      DROP TABLE IF EXISTS Favorites;
+    `);
+
     const userTableExists = await this.tableExists('Users');
 
     if (userTableExists) {
@@ -144,6 +172,33 @@ class Database {
     this.log('Creating the course records...');
 
     await this.createCourses(this.courses);
+
+    this.log('Creating the Courses indexes...');
+
+    await this.context.execute(`CREATE INDEX courses_title ON Courses (title);`);
+    await this.context.execute(`CREATE INDEX courses_user_id ON Courses (userId);`);
+
+    this.log('Creating the Favorites table...');
+
+    await this.context.execute(`
+      CREATE TABLE Favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        createdAt DATETIME NOT NULL,
+        updatedAt DATETIME NOT NULL,
+        userId INTEGER NOT NULL
+          REFERENCES Users (id) ON DELETE CASCADE ON UPDATE CASCADE,
+        courseId INTEGER NOT NULL
+          REFERENCES Courses (id) ON DELETE CASCADE ON UPDATE CASCADE
+      );
+    `);
+    await this.context.execute(`
+      CREATE UNIQUE INDEX favorites_user_course_unique ON Favorites (userId, courseId);
+    `);
+    await this.context.execute(`CREATE INDEX favorites_course_id ON Favorites (courseId);`);
+
+    this.log('Creating the favorite records...');
+
+    await this.createFavorites(this.favorites);
 
     this.log('Database successfully initialized!');
   }

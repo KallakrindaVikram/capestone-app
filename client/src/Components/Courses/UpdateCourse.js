@@ -22,7 +22,7 @@ const UpdateCourse = () => {
     const controller = new AbortController();
     context.data.getCourse(id)
       .then((response) => {
-        if (response.error === "Sorry, we couldn't find the course you were looking for.") {
+        if (!response) {
           navigate('/notfound');
         } else {
           // If the currently authenticated user is the same as the Course author

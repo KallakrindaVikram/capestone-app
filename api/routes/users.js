@@ -1,7 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
-const User = require('../models').User;
+const { User, Course, Favorite } = require('../models');
 const { authenticateUser } = require('../middleware/auth-user');
 const { asyncHandler } = require('../middleware/async-handler');
 
@@ -19,6 +19,31 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   });
 
   res.json(userResult);
+}));
+
+// Return the courses the authenticated user has favorited, most recently favorited first
+router.get('/users/me/favorites', authenticateUser, asyncHandler(async (req, res) => {
+  const favorites = await Favorite.findAll({
+    where: { userId: req.currentUser.id },
+    include: {
+      model: Course,
+      attributes: { exclude: ['createdAt', 'updatedAt'] },
+      include: { model: User, attributes: { exclude: ['password', 'createdAt', 'updatedAt'] } }
+    },
+    order: [['createdAt', 'DESC'], ['id', 'DESC']]
+  });
+  res.json({ items: favorites.map(favorite => favorite.Course) });
+}));
+
+// Return the users who own at least one course (used by the catalog owner filter)
+router.get('/owners', asyncHandler(async (req, res) => {
+  const owners = await User.findAll({
+    attributes: ['id', 'firstName', 'lastName'],
+    include: { model: Course, attributes: [], required: true },
+    group: ['User.id'],
+    order: [['firstName', 'ASC'], ['lastName', 'ASC']]
+  });
+  res.json({ items: owners });
 }));
 
 // Create a user

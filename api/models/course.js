@@ -38,13 +38,24 @@ module.exports = (sequelize) => {
     materialsNeeded: {
       type: DataTypes.STRING
     }
-  }, { sequelize });
+  }, {
+    sequelize,
+    indexes: [
+      { fields: ['title'], name: 'courses_title' },
+      { fields: ['userId'], name: 'courses_user_id' }
+    ]
+  });
 
   Course.associate = (models) => {
     Course.belongsTo(models.User, {
       foreignKey: {
-        fieldName: 'userid',
+        fieldName: 'userId',
       }
+    });
+    Course.hasMany(models.Favorite, {
+      foreignKey: { fieldName: 'courseId', allowNull: false },
+      onDelete: 'CASCADE',
+      hooks: true
     });
   }
 

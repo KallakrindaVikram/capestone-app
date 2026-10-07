@@ -37,8 +37,42 @@ Content-Type: application/json
 ### Get Courses
 GET http://localhost:5000/api/courses HTTP/1.1
 
+### Get Courses (Search + Page)
+GET http://localhost:5000/api/courses?q=react&page=1&pageSize=5 HTTP/1.1
+
+### Get Courses (Owner Filter + Sort)
+GET http://localhost:5000/api/courses?ownerId=3&sort=title_asc HTTP/1.1
+
+### Get Courses (Invalid ownerId - 400)
+GET http://localhost:5000/api/courses?ownerId=abc HTTP/1.1
+
 ### Get Course
 GET http://localhost:5000/api/courses/1 HTTP/1.1
+
+### Get Course (Not Found - 404)
+GET http://localhost:5000/api/courses/9999 HTTP/1.1
+
+### Get Course (With Auth - includes isFavorited)
+GET http://localhost:5000/api/courses/1 HTTP/1.1
+Authorization: Basic alex@rivera.com:alexpassword
+
+### Favorite Course
+POST http://localhost:5000/api/courses/4/favorite HTTP/1.1
+Authorization: Basic alex@rivera.com:alexpassword
+
+### Unfavorite Course
+DELETE http://localhost:5000/api/courses/4/favorite HTTP/1.1
+Authorization: Basic alex@rivera.com:alexpassword
+
+### Favorite Course (No Auth - 401)
+POST http://localhost:5000/api/courses/4/favorite HTTP/1.1
+
+### Get My Favorites
+GET http://localhost:5000/api/users/me/favorites HTTP/1.1
+Authorization: Basic alex@rivera.com:alexpassword
+
+### Get Course Owners
+GET http://localhost:5000/api/owners HTTP/1.1
 
 ### Create Course (Minimum Data)
 POST http://localhost:5000/api/courses HTTP/1.1
