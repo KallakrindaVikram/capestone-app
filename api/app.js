@@ -75,6 +75,17 @@ if (require.main === module) {
       const server = app.listen(app.get('port'), () => {
         console.log(`Express server is listening on port ${server.address().port}`);
       });
+      server.on('error', (error) => {
+        if (error.code === 'EADDRINUSE') {
+          console.error(`Port ${app.get('port')} is already in use. Stop the other process or start with a different PORT (the client expects port 5000).`);
+          process.exit(1);
+        }
+        throw error;
+      });
+    })
+    .catch((error) => {
+      console.error('Unable to sync the database: ', error);
+      process.exit(1);
     });
 }
 
