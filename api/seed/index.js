@@ -5,7 +5,7 @@ const Database = require('./database');
 const data = require('./data.json');
 
 const enableLogging = process.env.DB_ENABLE_LOGGING === 'true';
-const database = new Database(data, enableLogging);
+const database = new Database(data, enableLogging, process.env.DB_STORAGE || undefined);
 
 promiseFinally.shim();
 

@@ -39,6 +39,91 @@
       "description": "An introduction to testing and debugging your code.",
       "estimatedTime": "4 hours",
       "materialsNeeded": "* Notebook computer running Mac OS X or Windows\n* Text editor"
+    },
+    {
+      "userId": 1,
+      "title": "Intro to Woodworking Joints",
+      "description": "Learn the **mortise and tenon**, dovetail and lap joints used in everyday furniture projects.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "Chisels, mallet, pine offcuts"
+    },
+    {
+      "userId": 2,
+      "title": "JavaScript Fundamentals",
+      "description": "Variables, functions, arrays and objects: everything you need to start writing JavaScript.",
+      "estimatedTime": "12 hours",
+      "materialsNeeded": "A laptop and a code editor"
+    },
+    {
+      "userId": 2,
+      "title": "Advanced CSS Layouts",
+      "description": "Master flexbox and grid to build responsive layouts without frameworks.",
+      "estimatedTime": "8 hours",
+      "materialsNeeded": "A laptop and a browser"
+    },
+    {
+      "userId": 1,
+      "title": "Finishing and Staining Wood",
+      "description": "Sanding, staining and sealing techniques for a professional finish.",
+      "estimatedTime": "4 hours",
+      "materialsNeeded": "Sandpaper, stain, brushes"
+    },
+    {
+      "userId": 2,
+      "title": "Node.js REST APIs",
+      "description": "Build and test a REST API with Express and SQLite.",
+      "estimatedTime": "15 hours",
+      "materialsNeeded": "Node.js, a REST client"
+    },
+    {
+      "userId": 1,
+      "title": "Hand Tool Sharpening",
+      "description": "Keep your chisels and plane irons razor sharp with simple stones.",
+      "estimatedTime": "3 hours",
+      "materialsNeeded": "Sharpening stones, honing guide"
+    },
+    {
+      "userId": 2,
+      "title": "React for Beginners",
+      "description": "Components, props, state and hooks. Build a small single page app.",
+      "estimatedTime": "14 hours",
+      "materialsNeeded": "Node.js, a code editor"
+    },
+    {
+      "userId": 1,
+      "title": "Workshop Safety Basics",
+      "description": "Dust, noise and tool safety for the home woodworker.",
+      "estimatedTime": "2 hours",
+      "materialsNeeded": "Safety glasses, ear protection"
+    },
+    {
+      "userId": 2,
+      "title": "Databases with SQL",
+      "description": "Design tables and write SELECT, JOIN and aggregate queries.",
+      "estimatedTime": "10 hours",
+      "materialsNeeded": "SQLite"
+    },
+    {
+      "userId": 1,
+      "title": "Building a Garden Bench",
+      "description": "A weekend project: a sturdy cedar bench for the garden.",
+      "estimatedTime": "10 hours",
+      "materialsNeeded": "Cedar boards, screws, saw"
+    },
+    {
+      "userId": 2,
+      "title": "Web Accessibility Essentials",
+      "description": "Semantic HTML, ARIA and keyboard navigation for inclusive sites.",
+      "estimatedTime": "5 hours",
+      "materialsNeeded": "A browser and a screen reader"
+    },
+    {
+      "userId": 1,
+      "title": "Retired: Basic Birdhouse",
+      "description": "An older birdhouse project that has been archived by its author.",
+      "estimatedTime": "3 hours",
+      "materialsNeeded": "Pine boards, nails",
+      "archived": true
     }
   ]
 }

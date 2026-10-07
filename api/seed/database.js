@@ -4,11 +4,11 @@ const bcryptjs = require('bcryptjs');
 const Context = require('./context');
 
 class Database {
-  constructor(seedData, enableLogging) {
+  constructor(seedData, enableLogging, filename = 'fsjstd-restapi.db') {
     this.courses = seedData.courses;
     this.users = seedData.users;
     this.enableLogging = enableLogging;
-    this.context = new Context('fsjstd-restapi.db', enableLogging);
+    this.context = new Context(filename, enableLogging);
   }
 
   log(message) {
@@ -48,15 +48,16 @@ class Database {
     return this.context
       .execute(`
         INSERT INTO Courses
-          (userId, title, description, estimatedTime, materialsNeeded, createdAt, updatedAt)
+          (userId, title, description, estimatedTime, materialsNeeded, archived, createdAt, updatedAt)
         VALUES
-          (?, ?, ?, ?, ?, datetime('now'), datetime('now'));
+          (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'));
       `,
       course.userId,
       course.title,
       course.description,
       course.estimatedTime,
-      course.materialsNeeded);
+      course.materialsNeeded,
+      course.archived ? 1 : 0);
   }
 
   async hashUserPasswords(users) {
@@ -134,12 +135,19 @@ class Database {
         description TEXT NOT NULL DEFAULT '', 
         estimatedTime VARCHAR(255), 
         materialsNeeded VARCHAR(255), 
+        archived TINYINT(1) NOT NULL DEFAULT 0, 
         createdAt DATETIME NOT NULL, 
         updatedAt DATETIME NOT NULL, 
         userId INTEGER NOT NULL DEFAULT -1 
           REFERENCES Users (id) ON DELETE CASCADE ON UPDATE CASCADE
       );
     `);
+
+    this.log('Creating the Courses indexes...');
+
+    await this.context.execute(`CREATE INDEX courses_title ON Courses (title);`);
+    await this.context.execute(`CREATE INDEX courses_created_at ON Courses (createdAt);`);
+    await this.context.execute(`CREATE INDEX courses_archived_user_id ON Courses (archived, userId);`);
 
     this.log('Creating the course records...');
 

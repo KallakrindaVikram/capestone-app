@@ -37,13 +37,18 @@ module.exports = (sequelize) => {
     },
     materialsNeeded: {
       type: DataTypes.STRING
+    },
+    archived: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, { sequelize });
 
   Course.associate = (models) => {
     Course.belongsTo(models.User, {
       foreignKey: {
-        fieldName: 'userid',
+        fieldName: 'userId',
       }
     });
   }
