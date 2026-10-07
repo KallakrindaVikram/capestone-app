@@ -71,11 +71,19 @@ export default class Data {
   }
 
   /**
-   * Get all available courses
-   * @returns API response if successful
+   * Get a page of courses, optionally searched, filtered by owner and sorted
+   * @param {Object} options - { q, ownerId, sort, page, pageSize }; empty values are omitted
+   * @returns {Object} { items, meta } if successful
    */
-  async getCourses() {
-    const response = await this.api('/courses', 'GET', null, false);
+  async getCourses({ q, ownerId, sort, page, pageSize } = {}) {
+    const params = new URLSearchParams();
+    Object.entries({ q, ownerId, sort, page, pageSize }).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params.set(key, value);
+      }
+    });
+    const query = params.toString();
+    const response = await this.api(`/courses${query ? `?${query}` : ''}`, 'GET', null, false);
     if (response.status === 200) {
       return response.json().then(data => data);
     } else {
@@ -84,14 +92,73 @@ export default class Data {
   }
 
   /**
+   * Get the users who own courses, for the catalog owner filter
+   * @returns {Array} owners ({ id, firstName, lastName })
+   */
+  async getOwners() {
+    const response = await this.api('/owners', 'GET', null, false);
+    if (response.status === 200) {
+      return response.json().then(data => data.items);
+    } else {
+      throw new Error();
+    }
+  }
+
+  /**
    * Get a specific course by id
    * @param {String} id - Course ID
-   * @returns API response if successful
+   * @param {String} username - optional; when supplied the response includes isFavorited for this user
+   * @param {String} password
+   * @returns the course if successful, or null if the course does not exist
    */
-  async getCourse(id) {
-    const response = await this.api(`/courses/${id}`, 'GET', null, false);
+  async getCourse(id, username = null, password = null) {
+    const requiresAuth = !!username;
+    const response = await this.api(`/courses/${id}`, 'GET', null, requiresAuth, requiresAuth ? { username, password } : null);
     if (response.status === 200) {
       return response.json().then(data => data);
+    } else if (response.status === 404) {
+      return null;
+    } else {
+      throw new Error();
+    }
+  }
+
+  /**
+   * Add a course to the user's favorites
+   * @param {String} id - Course ID
+   * @param {String} username - user's email address
+   * @param {String} password
+   */
+  async favoriteCourse(id, username, password) {
+    const response = await this.api(`/courses/${id}/favorite`, 'POST', null, true, { username, password });
+    if (response.status !== 204) {
+      throw new Error(`Unable to favorite course (${response.status})`);
+    }
+  }
+
+  /**
+   * Remove a course from the user's favorites
+   * @param {String} id - Course ID
+   * @param {String} username - user's email address
+   * @param {String} password
+   */
+  async unfavoriteCourse(id, username, password) {
+    const response = await this.api(`/courses/${id}/favorite`, 'DELETE', null, true, { username, password });
+    if (response.status !== 204) {
+      throw new Error(`Unable to unfavorite course (${response.status})`);
+    }
+  }
+
+  /**
+   * Get the authenticated user's favorite courses
+   * @param {String} username - user's email address
+   * @param {String} password
+   * @returns {Array} courses
+   */
+  async getFavorites(username, password) {
+    const response = await this.api('/users/me/favorites', 'GET', null, true, { username, password });
+    if (response.status === 200) {
+      return response.json().then(data => data.items);
     } else {
       throw new Error();
     }
