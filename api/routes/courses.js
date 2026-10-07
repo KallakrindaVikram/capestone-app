@@ -5,12 +5,20 @@ const Course = require('../models').Course;
 const User = require('../models').User;
 const { authenticateUser } = require('../middleware/auth-user');
 const { asyncHandler } = require('../middleware/async-handler');
+const { buildCourseQuery } = require('../utils/course-query');
 
-// Return all courses
+// Return all courses, optionally searched (q), filtered (userId) and sorted (sort, order)
 router.get('/courses', asyncHandler(async (req, res) => {
+  const query = buildCourseQuery(req.query);
+  if (query.errors) {
+    return res.status(400).json({ errors: query.errors });
+  }
+
   let courses = await Course.findAll({
+    where: query.where,
+    order: query.order,
     attributes: {
-      exclude: ['createdAt', 'updatedAt']
+      exclude: ['createdAt']
     },
     include: {
       model: User,
