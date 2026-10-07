@@ -11,6 +11,18 @@
       "lastName": "Jones",
       "emailAddress": "sally@jones.com",
       "password": "sallypassword"
+    },
+    {
+      "firstName": "Priya",
+      "lastName": "Patel",
+      "emailAddress": "priya@patel.com",
+      "password": "priyapassword"
+    },
+    {
+      "firstName": "Marcus",
+      "lastName": "Lee",
+      "emailAddress": "marcus@lee.com",
+      "password": "marcuspassword"
     }
   ],
   "courses": [
@@ -123,6 +135,295 @@
       "description": "An older birdhouse project that has been archived by its author.",
       "estimatedTime": "3 hours",
       "materialsNeeded": "Pine boards, nails",
+      "archived": true
+    },
+    {
+      "userId": 3,
+      "title": "Python for Beginners",
+      "description": "Start programming with **Python**: variables, loops, functions and files.",
+      "estimatedTime": "10 hours",
+      "materialsNeeded": "* A laptop\n* Python 3 installed"
+    },
+    {
+      "userId": 3,
+      "title": "Python Data Analysis with Pandas",
+      "description": "Clean, reshape and summarise tabular data using Python and pandas.",
+      "estimatedTime": "12 hours",
+      "materialsNeeded": "* Python 3\n* Jupyter notebook"
+    },
+    {
+      "userId": 4,
+      "title": "Python Web Scraping",
+      "description": "Collect data from websites responsibly with Python, requests and BeautifulSoup.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* Python 3\n* A text editor"
+    },
+    {
+      "userId": 3,
+      "title": "Machine Learning Foundations",
+      "description": "Linear models, decision trees and evaluation, with hands-on Python exercises.",
+      "estimatedTime": "20 hours",
+      "materialsNeeded": "* Python 3\n* scikit-learn"
+    },
+    {
+      "userId": 4,
+      "title": "Intro to Digital Photography",
+      "description": "Learn exposure, composition and light. Any camera, including a phone, will do.",
+      "estimatedTime": "8 hours",
+      "materialsNeeded": "* A camera or smartphone"
+    },
+    {
+      "userId": 4,
+      "title": "Photography Lighting Basics",
+      "description": "Natural light, reflectors and a single-flash setup for portraits.",
+      "estimatedTime": "5 hours",
+      "materialsNeeded": "* Camera\n* Reflector\n* Speedlight"
+    },
+    {
+      "userId": 3,
+      "title": "Photo Editing with Free Tools",
+      "description": "Colour correction, cropping and retouching without paid software.",
+      "estimatedTime": "4 hours"
+    },
+    {
+      "userId": 4,
+      "title": "Street Photography Walkthrough",
+      "description": "Plan a shoot, work in public spaces respectfully and edit a small series.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* Camera"
+    },
+    {
+      "userId": 3,
+      "title": "Italian Cooking Essentials",
+      "description": "Fresh pasta, simple sauces and risotto from scratch.",
+      "estimatedTime": "7 hours",
+      "materialsNeeded": "* Large pot\n* Rolling pin\n* Flour and eggs"
+    },
+    {
+      "userId": 4,
+      "title": "Knife Skills for Home Cooks",
+      "description": "Hold, sharpen and use a chef knife safely and efficiently.",
+      "estimatedTime": "2 hours",
+      "materialsNeeded": "* Chef knife\n* Cutting board"
+    },
+    {
+      "userId": 3,
+      "title": "Sourdough Bread at Home",
+      "description": "Create a starter and bake a reliable loaf. Includes troubleshooting.",
+      "estimatedTime": "9 hours",
+      "materialsNeeded": "* Flour\n* Dutch oven\n* Kitchen scale"
+    },
+    {
+      "userId": 4,
+      "title": "Meal Prep for the Week",
+      "description": "Plan, shop and cook a week of lunches in a single afternoon.",
+      "estimatedTime": "3 hours"
+    },
+    {
+      "userId": 3,
+      "title": "Vegetarian Weeknight Dinners",
+      "description": "Quick, balanced vegetarian dinners using pantry staples.",
+      "estimatedTime": "5 hours"
+    },
+    {
+      "userId": 1,
+      "title": "Vegetable Gardening 101",
+      "description": "Soil, sowing and watering for a productive first-year vegetable plot.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* Trowel\n* Seeds\n* Raised bed or pots"
+    },
+    {
+      "userId": 2,
+      "title": "Composting Made Simple",
+      "description": "Build a compost bin and keep it healthy all year.",
+      "estimatedTime": "2 hours",
+      "materialsNeeded": "* Bin or pallets\n* Kitchen scraps"
+    },
+    {
+      "userId": 1,
+      "title": "Container Gardening for Balconies",
+      "description": "Grow herbs and salad greens in small spaces.",
+      "estimatedTime": "3 hours",
+      "materialsNeeded": "* Pots\n* Potting mix"
+    },
+    {
+      "userId": 4,
+      "title": "Beginner Acoustic Guitar",
+      "description": "Chords, strumming patterns and your first three songs.",
+      "estimatedTime": "15 hours",
+      "materialsNeeded": "* Acoustic guitar\n* Tuner\n* Picks"
+    },
+    {
+      "userId": 3,
+      "title": "Music Theory in Practice",
+      "description": "Scales, intervals and chord progressions explained with examples you can play.",
+      "estimatedTime": "10 hours",
+      "materialsNeeded": "* Any instrument"
+    },
+    {
+      "userId": 4,
+      "title": "Home Recording Basics",
+      "description": "Record and mix a simple song with a laptop and one microphone.",
+      "estimatedTime": "8 hours",
+      "materialsNeeded": "* Laptop\n* USB microphone\n* Headphones"
+    },
+    {
+      "userId": 2,
+      "title": "UX Design Fundamentals",
+      "description": "User research, wireframes and usability testing in small iterative steps.",
+      "estimatedTime": "12 hours",
+      "materialsNeeded": "* Pen and paper\n* Figma (free tier)"
+    },
+    {
+      "userId": 2,
+      "title": "Design Systems Workshop",
+      "description": "Build a reusable component library with tokens, documentation and versioning.",
+      "estimatedTime": "9 hours",
+      "materialsNeeded": "* Figma\n* Node.js"
+    },
+    {
+      "userId": 3,
+      "title": "Colour Theory for Designers",
+      "description": "Palettes, contrast and accessibility, with exercises you can reuse.",
+      "estimatedTime": "4 hours"
+    },
+    {
+      "userId": 2,
+      "title": "Git and GitHub Essentials",
+      "description": "Branches, pull requests and resolving merge conflicts without panic.",
+      "estimatedTime": "5 hours",
+      "materialsNeeded": "* Git installed\n* A GitHub account"
+    },
+    {
+      "userId": 2,
+      "title": "Docker for Developers",
+      "description": "Containers, images and compose files for local development.",
+      "estimatedTime": "8 hours",
+      "materialsNeeded": "* Docker Desktop"
+    },
+    {
+      "userId": 1,
+      "title": "Linux Command Line Basics",
+      "description": "Navigate, search and automate tasks from the shell.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* A terminal"
+    },
+    {
+      "userId": 2,
+      "title": "iOS App Development Basics",
+      "description": "Build and run your first SwiftUI app.",
+      "estimatedTime": "16 hours",
+      "materialsNeeded": "* A Mac\n* Xcode"
+    },
+    {
+      "userId": 2,
+      "title": "eBook Publishing Workshop",
+      "description": "Write, format and publish an ebook on a shoestring.",
+      "estimatedTime": "7 hours"
+    },
+    {
+      "userId": 3,
+      "title": "3D Printing for Beginners",
+      "description": "Design, slice and print your first parts. Covers common failures.",
+      "estimatedTime": "6 hours",
+      "materialsNeeded": "* 3D printer\n* PLA filament"
+    },
+    {
+      "userId": 1,
+      "title": "2D Game Development with JavaScript",
+      "description": "Create a small browser game with canvas, sprites and collision detection.",
+      "estimatedTime": "14 hours",
+      "materialsNeeded": "* A browser\n* A code editor"
+    },
+    {
+      "userId": 4,
+      "title": "Public Speaking with Confidence",
+      "description": "Structure a talk, manage nerves and handle questions.",
+      "estimatedTime": "4 hours"
+    },
+    {
+      "userId": 4,
+      "title": "Time Management for Busy People",
+      "description": "Practical planning methods you can apply the same day.",
+      "estimatedTime": "3 hours"
+    },
+    {
+      "userId": 1,
+      "title": "Basic Home Repairs",
+      "description": "Patch drywall, fix leaks and tighten loose hinges.",
+      "estimatedTime": "5 hours",
+      "materialsNeeded": "* Screwdrivers\n* Putty knife\n* Spackle"
+    },
+    {
+      "userId": 1,
+      "title": "Beginner Welding",
+      "description": "Safety, setup and simple joints using a MIG welder.",
+      "estimatedTime": "12 hours",
+      "materialsNeeded": "* MIG welder\n* Helmet\n* Gloves"
+    },
+    {
+      "userId": 1,
+      "title": "Restoring Antique Furniture",
+      "description": "Strip, repair and refinish old wooden furniture.",
+      "estimatedTime": "16 hours",
+      "materialsNeeded": "* Stripper\n* Sandpaper\n* Shellac"
+    },
+    {
+      "userId": 2,
+      "title": "Retired: Intro to jQuery",
+      "description": "An older course, archived by its author.",
+      "estimatedTime": "6 hours",
+      "archived": true
+    },
+    {
+      "userId": 3,
+      "title": "Retired: Flash Animation",
+      "description": "Archived: the technology is no longer supported.",
+      "estimatedTime": "8 hours",
+      "archived": true
+    },
+    {
+      "userId": 4,
+      "title": "Retired: Basic HTML Tables",
+      "description": "Archived and replaced by the CSS Layouts course.",
+      "estimatedTime": "2 hours",
+      "archived": true
+    },
+    {
+      "userId": 3,
+      "title": "Archived Draft: Advanced Sourdough",
+      "description": "Work in progress, hidden until it is ready.",
+      "estimatedTime": "10 hours",
+      "materialsNeeded": "* Banneton\n* Lame",
+      "archived": true
+    },
+    {
+      "userId": 1,
+      "title": "Archived Draft: Router Table Jigs",
+      "description": "Draft course, not yet published.",
+      "estimatedTime": "5 hours",
+      "archived": true
+    },
+    {
+      "userId": 2,
+      "title": "Archived: Python 2 Migration",
+      "description": "Obsolete since Python 2 reached end of life.",
+      "estimatedTime": "3 hours",
+      "archived": true
+    },
+    {
+      "userId": 4,
+      "title": "Archived: Film Photography Darkroom",
+      "description": "Seasonal course, archived until next year.",
+      "estimatedTime": "9 hours",
+      "materialsNeeded": "* Enlarger\n* Chemicals",
+      "archived": true
+    },
+    {
+      "userId": 3,
+      "title": "Archived: Winter Soup Series",
+      "description": "Seasonal course, archived until autumn.",
+      "estimatedTime": "4 hours",
       "archived": true
     }
   ]
