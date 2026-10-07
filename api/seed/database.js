@@ -50,13 +50,14 @@ class Database {
         INSERT INTO Courses
           (userId, title, description, estimatedTime, materialsNeeded, createdAt, updatedAt)
         VALUES
-          (?, ?, ?, ?, ?, datetime('now'), datetime('now'));
+          (?, ?, ?, ?, ?, datetime('now'), COALESCE(?, datetime('now')));
       `,
       course.userId,
       course.title,
       course.description,
       course.estimatedTime,
-      course.materialsNeeded);
+      course.materialsNeeded,
+      course.updatedAt || null);
   }
 
   async hashUserPasswords(users) {
@@ -139,6 +140,15 @@ class Database {
         userId INTEGER NOT NULL DEFAULT -1 
           REFERENCES Users (id) ON DELETE CASCADE ON UPDATE CASCADE
       );
+    `);
+
+    this.log('Creating the course indexes...');
+
+    await this.context.execute(`
+      CREATE INDEX IF NOT EXISTS idx_courses_title ON Courses(title);
+    `);
+    await this.context.execute(`
+      CREATE INDEX IF NOT EXISTS idx_courses_userId ON Courses(userId);
     `);
 
     this.log('Creating the course records...');
