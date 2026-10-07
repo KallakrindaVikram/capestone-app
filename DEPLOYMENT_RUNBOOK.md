@@ -1,7 +1,3 @@
-# Local Deployment Runbook
+# LOCAL DEPLOYMENT RUNBOOK (API P5000, UI P3000)
 
-Metadata:
-- Repo: KallakrindaVikram/capestone-app
-- Branch: feature/enhancements-sdlc
-- Pr: #14
-- Target: Local (API 5000, UI 3000)
+{{MDN}
