@@ -151,3 +151,53 @@ Content-Type: application/json
 
 ### Delete Course (No Auth)
 DELETE http://localhost:5000/api/courses/1 HTTP/1.1
+
+
+# Tests for catalog search, sort and pagination
+
+### Get Courses (page 2, 5 per page)
+GET http://localhost:5000/api/courses?page=2&limit=5 HTTP/1.1
+
+### Get Courses (keyword search, newest first)
+GET http://localhost:5000/api/courses?q=wood&sort=-createdAt HTTP/1.1
+
+### Get Courses (title Z-A)
+GET http://localhost:5000/api/courses?sort=-title HTTP/1.1
+
+### Get Courses (invalid parameters -> 400 { errors: [...] })
+GET http://localhost:5000/api/courses?page=0&limit=500&sort=password HTTP/1.1
+
+### Get Courses (include my archived courses)
+GET http://localhost:5000/api/courses?includeArchived=true HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+
+### Get Courses (includeArchived without auth -> 401)
+GET http://localhost:5000/api/courses?includeArchived=true HTTP/1.1
+
+
+# Tests for archiving and Not Found behaviour
+
+### Get Course (does not exist -> 404 { error: "Course Not Found" })
+GET http://localhost:5000/api/courses/9999 HTTP/1.1
+
+### Archive Course (owner)
+POST http://localhost:5000/api/courses/1/archive HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+
+### Get Course (archived, as owner -> 200)
+GET http://localhost:5000/api/courses/1 HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+
+### Get Course (archived, anonymous -> 404)
+GET http://localhost:5000/api/courses/1 HTTP/1.1
+
+### Unarchive Course (owner)
+POST http://localhost:5000/api/courses/1/unarchive HTTP/1.1
+Authorization: Basic joe@smith.com:joepassword
+
+### Archive Course (not the owner -> 403)
+POST http://localhost:5000/api/courses/1/archive HTTP/1.1
+Authorization: Basic sally@jones.com:sallypassword
+
+### Archive Course (no auth -> 401)
+POST http://localhost:5000/api/courses/1/archive HTTP/1.1
