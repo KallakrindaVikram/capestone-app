@@ -1,0 +1,447 @@
+Architecture & Technical Design: Capestone App – Catalog Search/Filter/Sort/Pagination + Favorites
+Document Header & Scope
+Target repository: KallakrindaVikram/capestone-app
+
+In-scope user stories (Jira):
+
+EPMCDMETST-68331 — US-001: Search courses by keyword with paginated results
+
+EPMCDMETST-68339 — US-002: Filter and sort courses on the course list
+
+EPMCDMETST-68347 — US-003: Favorite courses for quick access
+
+Out of scope
+Password reset / forgot password flow
+
+Advanced full-text search (FTS) or ranking
+
+Role-based access control beyond current owner-only update/delete
+
+Admin reporting/analytics
+
+Server-side rendered UI or SEO improvements
+
+High-Level Design (HLD)
+System overview
+The system is a single-page React application (client) that communicates with an Express REST API (api) using JSON over HTTP. The API persists data in SQLite via Sequelize models. Enhancements introduce server-side query capabilities on the course catalog endpoint (search, owner filter, sort, pagination) and a new Favorites capability implemented as a join table between Users and Courses with authenticated endpoints. The UI keeps catalog state (q, ownerId, sort, page, pageSize) in the URL query string for shareable and reload-safe navigation.
+
+Primary user flows
+Catalog search + pagination: User enters keyword q on /courses; client updates URL, calls GET /api/courses?q=&page=&pageSize=; API returns items plus pagination meta; UI renders results and enables/disables Prev/Next accordingly, showing empty-state when no matches.
+
+Catalog owner filter + sorting: User selects ownerId and sort; client updates URL query, calls GET /api/courses?ownerId=&sort=; API validates sort and returns ordered, filtered results; user can combine with keyword search and pagination.
+
+Favorite toggle + My Favorites: Authenticated user toggles Favorite on course detail; client calls POST/DELETE /api/courses/:id/favorite; UI updates without refresh. User navigates to /favorites to list favorites via GET /api/users/me/favorites. Deleting a course cascades to favorites to avoid orphans.
+
+Architecture diagram
+
+
+flowchart LR
+  U[User Browser] -->|React SPA| C[Client (React)]
+  C -->|HTTP JSON (fetch)| A[API (Express /api)]
+  A -->|Sequelize ORM| D[(SQLite DB)]
+  subgraph API Modules
+    R1[Courses Router]\nGET /courses\nGET /courses/:id\nPOST/PUT/DELETE
+    R2[Users Router]\nGET /users (auth)\nPOST /users
+    R3[Favorites Endpoints]\nPOST/DELETE /courses/:id/favorite\nGET /users/me/favorites
+    M1[Auth Middleware\nBasic Auth]
+  end
+  A --> R1
+  A --> R2
+  A --> R3
+  R1 --> M1
+  R3 --> M1
+  A --> D
+Sequence diagram
+
+
+sequenceDiagram
+  autonumber
+  actor User
+  participant UI as React UI
+  participant API as Express API (/api)
+  participant DB as SQLite (Sequelize)
+  Note over UI: US-001/US-002 Catalog query
+  User->>UI: Open /courses?q=react&ownerId=2&sort=newest&page=1
+  UI->>API: GET /courses?q=react&ownerId=2&sort=newest&page=1&pageSize=12
+  API->>DB: SELECT count(*) + SELECT rows (where + order + limit/offset)
+  DB-->>API: totalCount + items[]
+  API-->>UI: 200 {items, meta}
+  UI-->>User: Render list + pagination
+  Note over UI: US-003 Favorite toggle
+  User->>UI: Click Favorite ON
+  UI->>API: POST /courses/10/favorite (Basic Auth)
+  API->>DB: INSERT INTO Favorites(userId, courseId)
+  DB-->>API: ok
+  API-->>UI: 204
+  UI-->>User: Toggle shows Favorited
+  User->>UI: Open My Favorites
+  UI->>API: GET /users/me/favorites (Basic Auth)
+  API->>DB: SELECT favorites join courses
+  DB-->>API: courses[]
+  API-->>UI: 200 {items}
+  UI-->>User: Render favorite courses
+Low-Level Design (LLD)
+Database Design
+Existing models
+User (api/models/user.js)
+    
+
+id: INTEGER PK autoincrement
+
+firstName: STRING not null
+
+lastName: STRING not null
+
+emailAddress: STRING not null unique
+
+password: STRING not null (hashed via validatePassword validator)
+
+Associations: User.hasMany(Course) via foreignKey fieldName 'userId'
+
+Course (api/models/course.js)
+    
+
+id: INTEGER PK autoincrement
+
+title: STRING not null
+
+description: TEXT not null
+
+estimatedTime: STRING nullable
+
+materialsNeeded: STRING nullable
+
+Associations: Course.belongsTo(User) via foreignKey fieldName 'userid' (note casing mismatch)
+
+Schema changes
+Add Favorites join table model (Favorite) with columns: id (PK), userId (FK -> Users.id), courseId (FK -> Courses.id), createdAt, updatedAt; enforce unique constraint on (userId, courseId); FK cascade on delete for Course and User.
+
+Add DB index on Courses.userId and optionally on Courses.title for faster filtering/sorting.
+
+Align Course foreign key naming to 'userId' consistently (optional corrective migration).
+
+Seed update strategy
+Seed at least 3 users and > 25 courses to validate pagination.
+
+Ensure multiple courses per user to validate owner filter.
+
+Seed at least one user with 5+ favorites across different owners.
+
+API Specifications
+GET /api/courses
+Description: Returns a list of courses with optional keyword search (q), owner filter (ownerId), sorting (sort), and pagination (page/pageSize). Response includes pagination metadata and items with associated owner user data.
+
+Auth: none
+
+Query Param
+
+Type
+
+Required
+
+Default
+
+Rules
+
+q
+
+string
+
+false
+
+(none)
+
+Trim; empty => no search; case-insensitive contains match against title OR description.
+
+ownerId
+
+integer
+
+false
+
+(none)
+
+Positive integer; filters by Course.userId == ownerId.
+
+sort
+
+string
+
+false
+
+newest
+
+Allowed: newest, title_asc; invalid => newest.
+
+page
+
+integer
+
+false
+
+1
+
+Invalid/non-numeric/<1 => 1.
+
+pageSize
+
+integer
+
+false
+
+12
+
+Clamp to safe range (e.g., 1..50); invalid => 12.
+
+Status
+
+Body
+
+Notes
+
+200
+
+{"items":[{"id":1,"title":"...","description":"...","estimatedTime":null,"materialsNeeded":null,"User":{"id":2,"firstName":"...","lastName":"...","emailAddress":"..."}}],"meta":{"totalCount":37,"page":1,"pageSize":12,"totalPages":4,"sortApplied":"newest","qApplied":"react","ownerIdApplied":2}}
+
+Include User association, exclude sensitive fields; sorting server-side.
+
+400
+
+{"errors":["Invalid ownerId"]}
+
+Validation failures.
+
+POST /api/courses/:id/favorite
+Description: Creates favorite relationship between authenticated user and course.
+
+Auth: Basic Auth required
+
+Status
+
+Body
+
+Notes
+
+204
+
+(no content)
+
+Preferred; idempotent success if already favorited (unique constraint violation treated as success).
+
+404
+
+{"error":"Course Not Found"}
+
+If course does not exist.
+
+DELETE /api/courses/:id/favorite
+Description: Removes favorite relationship between authenticated user and course.
+
+Auth: Basic Auth required
+
+Status
+
+Body
+
+Notes
+
+204
+
+(no content)
+
+Preferred; idempotent success if not favorited.
+
+404
+
+{"error":"Course Not Found"}
+
+If course does not exist.
+
+GET /api/users/me/favorites
+Description: Lists favorited courses for authenticated user.
+
+Auth: Basic Auth required
+
+Status
+
+Body
+
+Notes
+
+200
+
+{"items":[{"id":10,"title":"...","description":"...","User":{...}}]}
+
+Return same course shape as catalog list for UI reuse.
+
+GET /api/courses/:id (detail)
+Description: Return course detail; when authenticated, include isFavorited for current user (optional enhancement).
+
+Status
+
+Body
+
+Notes
+
+200
+
+{"id":10,"title":"...","description":"...","estimatedTime":null,"materialsNeeded":null,"User":{...},"isFavorited":true}
+
+If not authenticated, omit isFavorited or return null/false consistently.
+
+404
+
+{"error":"Course Not Found"}
+
+Normalize current behavior to proper 404.
+
+Frontend Architecture
+Component structure
+Catalog page: Courses (container), CatalogToolbar (new), PaginationControls (new), EmptyState (new), existing course cards list.
+
+Detail page: CourseDetail (existing), FavoriteToggle (new), existing ownership actions.
+
+Favorites page: MyFavorites (new) rendered under /favorites (PrivateRoute).
+
+URL query string state management
+Source of truth: q, ownerId, sort, page, pageSize in query string.
+
+On mount: parse and coerce invalid values; optionally replace URL with normalized params.
+
+On search/filter/sort: reset page=1; update URL; refetch.
+
+Pagination controls update page in URL only; disable based on meta boundaries.
+
+Debounce strategy
+Submit-driven search to match acceptance criteria.
+
+Optional enhancement: debounce live search at 400ms (not required by AC).
+
+Wireframes
+
+
+┌─────────────────────────────────────────────────────────────┐
+│ Header                                                      │
+├─────────────────────────────────────────────────────────────┤
+│ Courses                                                     │
+│                                                             │
+│  Search: [ react hooks                 ] [Search] [Clear]    │
+│  Owner:  [ All Owners v ]   Sort: [ Newest v ]               │
+│                                                             │
+│  ┌───────────────┐ ┌───────────────┐ ┌───────────────┐      │
+│  │ Course        │ │ Course        │ │ Course        │      │
+│  │ Title ...     │ │ Title ...     │ │ Title ...     │      │
+│  └───────────────┘ └───────────────┘ └───────────────┘      │
+│                                                             │
+│  ┌───────────────┐ ┌───────────────┐ ┌───────────────┐      │
+│  │ Course        │ │ Course        │ │ + New Course   │      │
+│  │ Title ...     │ │ Title ...     │ │                │      │
+│  └───────────────┘ └───────────────┘ └───────────────┘      │
+│                                                             │
+│  [Previous]   Page 1 of 4   [Next]                           │
+└─────────────────────────────────────────────────────────────┘
+Empty state (when items=[]):
+  "No courses match your search." (hide course cards, keep toolbar visible)
+Not Found view:
+┌─────────────────────────────────────────────────────────────┐
+│ Header                                                      │
+├─────────────────────────────────────────────────────────────┤
+│ Not Found                                                   │
+│                                                             │
+│  Sorry! We couldn't find what you were looking for.         │
+│                                                             │
+│  [Go to Courses]                                            │
+└─────────────────────────────────────────────────────────────┘
+Traceability Matrix
+Acceptance criteria coverage matrix linking stories to architectural design elements.
+
+US-001
+Acceptance Criteria
+
+Design Elements
+
+Search updates list by title/description (case-insensitive)
+
+API: GET /api/courses?q= with LOWER()+LIKE; Frontend: CatalogToolbar submit; LLD: Sequelize where OR.
+
+Clear search shows full list
+
+Frontend: Clear removes q and resets page=1; API: no q => unfiltered.
+
+Next page updates URL and results
+
+Frontend: PaginationControls increments page in URL; API: limit/offset; Response meta.
+
+Prev/Next disabled at bounds
+
+Frontend: disable based on meta.page and meta.totalPages.
+
+Invalid page coerced to 1
+
+API: coercion; Frontend: normalize query params.
+
+No matches shows empty state
+
+Frontend: EmptyState when items.length==0; Wireframe.
+
+US-002
+Acceptance Criteria
+
+Design Elements
+
+Filter by owner
+
+API: ownerId filter on Course.userId; Frontend: owner dropdown + URL.
+
+Change sort reloads filtered results
+
+Frontend: keep ownerId/q, reset page=1; API applies where+order.
+
+Title (A-Z)
+
+API: sort=title_asc order by title ASC.
+
+Newest
+
+API: sort=newest order by createdAt DESC.
+
+Invalid sort defaults to Newest
+
+API: allowlist validation; meta.sortApplied.
+
+URL preserves filter/sort
+
+Frontend: query string as source of truth; HLD state persistence.
+
+US-003
+Acceptance Criteria
+
+Design Elements
+
+Acceptance Criteria
+
+Design Elements
+
+Favorite toggle shows current state when signed in
+
+Frontend: FavoriteToggle; API: isFavorited in GET course detail (optional) or secondary call; DB: Favorites join table.
+
+Toggle ON favorites without refresh
+
+API: POST /api/courses/:id/favorite; Frontend: optimistic update; DB unique constraint.
+
+Toggle OFF unfavorites
+
+API: DELETE /api/courses/:id/favorite; Frontend: optimistic update.
+
+My Favorites shows only my items
+
+Route: /favorites (PrivateRoute) + MyFavorites; API: GET /api/users/me/favorites.
+
+Unauthenticated favorite redirects to sign-in
+
+Frontend: navigate('/signin'); API enforces 401 if attempted.
+
+Deleting course removes favorites
+
+DB: FK cascade delete on Favorites.courseId; existing DELETE course triggers cascade.

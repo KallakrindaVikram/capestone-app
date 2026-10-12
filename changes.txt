@@ -1,0 +1,143 @@
+CHANGES - feature/enhancements-sdlc
+===================================
+Implements IMPLEMENTATION_PLAN.md / design.txt:
+  US-001 Search + pagination, US-002 Filter + sort, US-003 Favorites.
+
+
+BACKEND (api/)
+--------------
+Database / models
+  models/favorite.js            NEW  Favorite join model. Unique (userId, courseId), FK cascade delete
+                                     to Users and Courses, index on courseId.
+  models/course.js              MOD  Indexes on title and userId. belongsTo FK renamed 'userid' -> 'userId'
+                                     (casing mismatch with User.hasMany, per design). Course.hasMany(Favorite).
+  models/user.js                MOD  User.hasMany(Favorite).
+  models/index.js               MOD  DB_STORAGE env var overrides the sqlite file (used by tests).
+  migrations/20260107000000-add-favorites-and-indexes.js
+                                NEW  Creates Favorites + the 4 indexes. Idempotent (safe alongside the
+                                     sequelize.sync() that app start-up runs). Has a down().
+  seed/data.json                MOD  4 users, 30 courses (was 2 / 4), 16 favorites. Keyword-diverse titles.
+                                     Alex Rivera has 7 favorites across 3 different owners.
+  seed/database.js              MOD  Creates Favorites table + indexes, seeds favorites, staggers
+                                     Courses.createdAt (one day apart) so "newest" sort is meaningful.
+
+Routes
+  routes/courses.js             MOD  GET /api/courses now returns { items, meta }.
+                                       q          trimmed, case-insensitive contains on title OR description
+                                                  (LIKE wildcards in user input are escaped)
+                                       ownerId    positive int; otherwise 400 {"errors":["Invalid ownerId"]}
+                                       sort       newest (default) | title_asc; invalid -> newest
+                                       page       invalid/<1 -> 1; page past the end -> last page
+                                       pageSize   default 12, clamped 1..50
+                                       meta       totalCount, page, pageSize, totalPages, sortApplied,
+                                                  qApplied, ownerIdApplied
+                                     GET /api/courses/:id: proper 404 {"error":"Course Not Found"};
+                                       adds isFavorited (false when anonymous).
+                                     NEW POST   /api/courses/:id/favorite   (auth, 204, idempotent, 404)
+                                     NEW DELETE /api/courses/:id/favorite   (auth, 204, idempotent, 404)
+  routes/users.js               MOD  NEW GET /api/users/me/favorites (auth) -> { items }, same shape as list.
+                                     NEW GET /api/owners (public) -> users who own courses. Not in the
+                                     design doc, but the owner dropdown needs it: with pagination the
+                                     client cannot derive the owner list from the current page.
+  middleware/auth-user.js       MOD  optionalAuthenticateUser: sets req.currentUser if credentials are
+                                     valid, never rejects (used by course detail).
+  app.js                        MOD  Exports app; only listens when run directly, so tests can import it.
+  package.json                  MOD  Scripts: "migrate", "test".
+
+Tests / docs
+  tests/catalog.test.js         NEW  34 tests (node:test, temp sqlite DB): search, pagination, validation,
+                                     owner filter, sort, detail 404 / isFavorited, favorite auth /
+                                     idempotency / uniqueness, my favorites, cascade delete (course + user).
+                                     Run: cd api && npm test
+  README.md, tests.http         MOD  Document the new params, endpoints, scripts and seed accounts.
+
+
+FRONTEND (client/src/)
+----------------------
+  Data.js                       MOD  getCourses(options) with query params (returns { items, meta }),
+                                     getOwners, getCourse(id, user, pass) (returns null on 404),
+                                     favoriteCourse, unfavoriteCourse, getFavorites.
+  Components/Courses/
+    catalogQuery.js             NEW  Parse/normalise/build the URL query string (q, ownerId, sort, page, pageSize).
+    Courses.js                  MOD  Catalog container. URL query string is the source of truth;
+                                     invalid values are normalised in the URL; any search/owner/sort change
+                                     resets to page 1; out-of-range page is replaced by the page the API returned.
+    CatalogToolbar.js           NEW  Search box (Search + Clear), Owner dropdown, Sort dropdown.
+    PaginationControls.js       NEW  Previous / "Page X of Y" / Next, disabled at the bounds.
+    EmptyState.js               NEW  "No courses match your search." (toolbar stays visible).
+    CourseCard.js               NEW  Card shared by the catalog and My Favorites.
+    FavoriteToggle.js           NEW  Optimistic toggle with rollback + error message; signed-out users are
+                                     redirected to /signin (and returned afterwards).
+    MyFavorites.js              NEW  /favorites page with empty state.
+    CourseDetail.js             MOD  Fetches with credentials (for isFavorited) and shows FavoriteToggle.
+    UpdateCourse.js             MOD  Handles getCourse() returning null for a missing course.
+  App.js                        MOD  Private route /favorites.
+  Components/Header.js          MOD  "My Favorites" link when signed in.
+  styles/global.css             MOD  Toolbar, pagination, empty state and favorite error styles.
+  testUtils.js                  NEW  Test helpers (fake Data, router + context wrapper).
+  App.test.js                   MOD  Replaced the failing CRA "learn react" placeholder with routing tests.
+  __tests__/Courses.test.js     NEW  Search/clear, empty state, pagination, URL sync, owner/sort, invalid params.
+  __tests__/Favorites.test.js   NEW  Toggle (auth redirect, optimistic, rollback), detail, My Favorites.
+                                     24 client tests in total. Run: cd client && npm test
+
+
+SELENIUM / JUNIT 5 E2E SUITE (selenium-tests/)
+----------------------------------------------
+  Based on the JSON from the test automation agent, but adapted to the real app. Differences:
+    - pom.xml: defaults for baseUrl/apiBaseUrl/headless/browser/pageSize (the pasted pom passed the
+      literal text "${baseUrl}" to the tests when no -D flag was given); dropped unused jackson dep;
+      added slf4j-simple; compiler "release 17".
+    - Selectors match the actual markup (a.course--link cards, #catalog-search / #catalog-owner /
+      #catalog-sort, nav.pagination, .empty--state, button.favorite--toggle[aria-pressed]). The pasted
+      ".grid-33" and "h2 Courses" selectors do not exist in this app, and "a[href^='/courses/']" would
+      also match the "New Course" tile.
+    - ApiClient.getCourses takes Map<String, ?> (the pasted Map<String,Object> would not compile with
+      Map.of("page", 1)).
+    - Safe test data: the pasted ownership test updated items[0] (Sally's own course after the new seed,
+      so it would succeed) and the cascade test deleted seeded data. Ownership/favorites tests now create
+      and delete their own throwaway course via the API; Joe's seeded favorites are never touched.
+    - Stronger assertions: UI titles/order are compared with the API for the same query, sortApplied is
+      checked strictly, "no full refresh" is proven with a JS marker, invalid page is checked to be
+      normalised out of the URL (the pasted test expected "page=" to stay in it).
+    - CatalogPage waits for results to be re-rendered (stalenessOf) instead of reading old cards.
+  28 tests: US-001 x8, US-002 x7 + ownership x4, US-003 x9.
+  Run: cd selenium-tests && mvn clean test -Dheadless=true  (needs API :5000 + UI :3000 on a freshly
+  seeded DB; see selenium-tests/README.md). Passed 3 of 4 full runs 28/28; the other run had 1 Chrome
+  renderer crash ("session deleted... Unable to receive message from renderer") before adding
+  --disable-gpu/--disable-extensions and a 30s page-load timeout; 2 clean runs since.
+  Verified against a throwaway seeded DB (not the tracked one); fixtures cleaned up (still 30 courses).
+
+
+HOW TO RUN
+----------
+  cd api    && npm install && npm run seed && npm start      (API on :5000)
+  cd client && npm install && npm start                     (UI)
+  Sign in as alex@rivera.com / alexpassword to see 7 seeded favorites.
+  NOTE: "npm run seed" drops and recreates the tables in api/fsjstd-restapi.db.
+
+
+VERIFIED
+--------
+  api:    npm test -> 34 passed
+  client: CI=true npm test -> 24 passed; CI=true npm run build -> compiles with no lint warnings
+  The migration was run against a copy of the original DB, both before and after sequelize.sync()
+  (idempotent, down() works). A live API run against a freshly seeded DB returned the expected
+  results for search / owner / sort / pagination / favorites.
+  Not done: no manual browser pass of the UI (covered by the React Testing Library tests only).
+
+
+NOT COMMITTED (left as found)
+-----------------------------
+  design.txt, changes.txt (untracked, as requested)
+  api/yarn.lock, client/yarn.lock, client/package-lock.json (modified before this work started)
+
+COMMITS (feature/enhancements-sdlc)
+-----------------------------------
+  feat(api): add Favorites model, migration, indexes and expanded seed data
+  feat(api): add catalog search, filter, sort, pagination and favorites endpoints
+  test(api): cover catalog query params, validation, favorites auth and cascades
+  feat(client): add catalog search, pagination, owner filter, sort and favorites UI
+  test(client): add RTL tests for catalog behaviour and favorites
+  docs(api): document new query params, favorites endpoints and scripts
+  chore(db): seed development database with 4 users, 30 courses and 16 favorites
+  (api/fsjstd-restapi.db was re-seeded with "npm run seed" and committed.)
