@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import Context from '../../Context';
 import Loading from '../Loading';
+import FavoriteToggle from './FavoriteToggle';
 
 const CourseDetail = () => {
   const context = useContext(Context.Context);
@@ -17,9 +18,9 @@ const CourseDetail = () => {
   useEffect(() => {
     // Fetch a course from the database
     const controller = new AbortController();
-    context.data.getCourse(id)
+    context.data.getCourse(id, authUser?.emailAddress, authUser?.password)
       .then(response => {
-        if (response.id) {
+        if (response && response.id) {
           setCourseDetail(response)
         } else {
           // If there is no course ID, direct to Not Found
@@ -35,7 +36,7 @@ const CourseDetail = () => {
       });
     // Clean up to prevent memory leak
     return () => controller?.abort();
-  }, [id, navigate, context.data]);
+  }, [id, navigate, context.data, authUser?.emailAddress, authUser?.password]);
 
   if (course.id) {
     courseDetail = <div className="wrap">
@@ -94,6 +95,7 @@ const CourseDetail = () => {
               <button className="button" onClick={handleDelete}>Delete Course</button>
               : null
             }
+            <FavoriteToggle key={course.id} courseId={course.id} initialFavorited={!!course.isFavorited} />
             <Link to='/' className="button button-secondary">Return to List</Link>
           </div>
         </div>

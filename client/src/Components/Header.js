@@ -14,6 +14,7 @@ const Header = () => {
           {authUser ?
             <ul className="header--signedin">
               <li>Welcome, {authUser.firstName} {authUser.lastName}!</li>
+              <li><Link to='/favorites'>My Favorites</Link></li>
               <li><Link to='/signout'>Sign Out</Link></li>
             </ul>
             :
