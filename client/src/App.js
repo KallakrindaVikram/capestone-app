@@ -5,6 +5,7 @@ import Header from './Components/Header';
 import Courses from './Components/Courses/Courses';
 import CourseDetail from './Components/Courses/CourseDetail';
 import UpdateCourse from './Components/Courses/UpdateCourse';
+import MyFavorites from './Components/Courses/MyFavorites';
 import UserSignIn from './Components/User/UserSignIn';
 import UserSignUp from './Components/User/UserSignUp';
 import UserSignOut from './Components/User/UserSignOut';
@@ -32,6 +33,9 @@ function App() {
           <Route path="/signout" element={<UserSignOut />} />
           <Route path="/courses/create" element={<PrivateRoute />}>
             <Route path="/courses/create" element={<CreateCourse />} />
+          </Route>
+          <Route path="/favorites" element={<PrivateRoute />}>
+            <Route path="/favorites" element={<MyFavorites />} />
           </Route>
           <Route path="/notfound" element={<NotFound />} />
           <Route path="/forbidden" element={<Forbidden />} />

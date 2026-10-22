@@ -37,3 +37,15 @@ exports.authenticateUser = async (req, res, next) => {
     next();
   }
 }
+
+/** Sets req.currentUser when valid Basic Auth credentials are supplied; never rejects the request. */
+exports.optionalAuthenticateUser = async (req, res, next) => {
+  const credentials = auth(req);
+  if (credentials) {
+    const user = await User.findOne({ where: { emailAddress: credentials.name } });
+    if (user && bcrypt.compareSync(credentials.pass, user.password)) {
+      req.currentUser = user;
+    }
+  }
+  next();
+};
